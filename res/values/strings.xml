@@ -2,4 +2,6 @@
 <resources>
     <string name="hello">Hello World, dMPDe!</string>
     <string name="app_name">dMPDe</string>
+<string name="local_service_started">dMPDe Serivce Is Running</string>
+<string name="local_service_label">dMPDe</string>
 </resources>
