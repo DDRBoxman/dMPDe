@@ -4,4 +4,6 @@
     <string name="app_name">dMPDe</string>
 <string name="local_service_started">dMPDe Serivce Is Running</string>
 <string name="local_service_label">dMPDe</string>
+<string name="server_port">Server Port</string>
+<string name="hostname">Hostname</string>
 </resources>

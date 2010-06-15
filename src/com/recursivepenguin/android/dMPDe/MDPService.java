@@ -1,5 +1,7 @@
 package com.recursivepenguin.android.dMPDe;
 
+import java.net.Socket;
+
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -10,15 +12,51 @@ import android.os.IBinder;
 public class MDPService extends Service{
 
 	private NotificationManager mNM;
+	private ClientListener mClientListener;
+	private ClientEventListener mClientEventListener;
 	
 	@Override
 	public void onCreate() {
 		mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-
+		
         // Display ongoing notification about mpd daemon service
         showNotification();
+        
+        mClientEventListener = new ClientEventListener() {
+
+			@Override
+			boolean doCommand() {
+				// TODO Auto-generated method stub
+				return false;
+			}
+        	
+        };
 	}
 	
+	// This is the old onStart method that will be called on the pre-2.0
+    // platform.  On 2.0 or later we override onStartCommand() so this
+    // method will not be called.
+    @Override
+    public void onStart(Intent intent, int startId) {
+        handleStart(intent, startId);
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        handleStart(intent, startId);
+        return START_NOT_STICKY;
+    }
+	
+    void handleStart(Intent intent, int startId) {
+    	mClientListener = new ClientListener();
+    	mClientListener.start();
+    }
+    
+    private void onClientConnect(Socket socket) {
+    	Client newClient = new Client(socket);
+    	newClient.setEventListener(mClientEventListener);
+    }
+    
 	@Override
 	public IBinder onBind(Intent arg0) {
 		// TODO Auto-generated method stub
