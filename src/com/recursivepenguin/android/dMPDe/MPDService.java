@@ -8,8 +8,9 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.util.Log;
 
-public class MDPService extends Service{
+public class MPDService extends Service{
 
 	private NotificationManager mNM;
 	private ClientListener mClientListener;
@@ -25,8 +26,9 @@ public class MDPService extends Service{
         mClientEventListener = new ClientEventListener() {
 
 			@Override
-			boolean doCommand() {
-				// TODO Auto-generated method stub
+			boolean doCommand(String command) {
+				
+				Log.d("EventListener",command);
 				return false;
 			}
         	
@@ -48,13 +50,14 @@ public class MDPService extends Service{
     }
 	
     void handleStart(Intent intent, int startId) {
-    	mClientListener = new ClientListener();
+    	mClientListener = new ClientListener(this);
     	mClientListener.start();
     }
     
-    private void onClientConnect(Socket socket) {
+    void onClientConnect(Socket socket) {
     	Client newClient = new Client(socket);
     	newClient.setEventListener(mClientEventListener);
+    	newClient.start();
     }
     
 	@Override

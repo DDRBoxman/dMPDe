@@ -7,6 +7,7 @@ public class Command {
 *
 * This array must be sorted!
 */
+	/*
 static const struct command commands[] = {
 { “add”, PERMISSION_ADD, 1, 1, handle_add },
 { “addid”, PERMISSION_ADD, 1, 2, handle_addid },
@@ -86,5 +87,5 @@ endif
 { “update”, PERMISSION_ADMIN, 0, 1, handle_update },
 { “urlhandlers”, PERMISSION_READ, 0, 0, handle_urlhandlers },
 };
-	
+	*/
 }

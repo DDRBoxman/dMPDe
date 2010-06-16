@@ -1,6 +1,7 @@
 package com.recursivepenguin.android.dMPDe;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 
 public class dMPDe extends Activity {
@@ -9,5 +10,7 @@ public class dMPDe extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        
+        startService(new Intent(this, MPDService.class));
     }
 }

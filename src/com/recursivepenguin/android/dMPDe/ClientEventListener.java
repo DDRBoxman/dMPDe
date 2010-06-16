@@ -4,6 +4,6 @@ import java.util.EventListener;
 
 public abstract class ClientEventListener implements EventListener {
 
-	abstract boolean doCommand();
+	abstract boolean doCommand(String command);
 	
 }

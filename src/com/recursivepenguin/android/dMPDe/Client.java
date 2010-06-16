@@ -6,6 +6,8 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import android.util.Log;
+
 public class Client extends Thread{
 	
 	private Socket mSocket;
@@ -26,9 +28,12 @@ public class Client extends Thread{
 		}
 	}
 	
-	public void run() {
-		//Display info about this particular thread
-		System.out.println(Thread.currentThread().getName());
+	public void run() {		
+		boolean looping = true;
+		
+		while(looping == true) {
+			mListener.doCommand(getCommand());
+		}
 	}
 	
 	private String getCommand() {
