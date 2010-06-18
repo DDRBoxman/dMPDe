@@ -1,7 +1,42 @@
 package com.recursivepenguin.android.dMPDe;
 
+import android.content.Context;
+import android.media.AudioManager;
+
 public class Command {
 
+	private AudioManager mAudioManager;
+	
+	public Command(AudioManager amanager) {
+		mAudioManager = amanager;
+	}
+	
+	public String status() {
+		
+		String statusString = "";
+		
+		int maxVol = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+		int minVol = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+		
+		statusString += "volume: " + (minVol/maxVol) * 100 + "\n";
+		
+		return statusString;
+	}
+	
+	//return available commands
+	public String commands() {
+		return "command: status\n";
+	}
+	
+	//return outputs
+	public String outputs() {
+		return "outputid: 1\noutputname: Taco\noutputenabled: 1\n";
+	}
+	
+	//return tag types
+	public String tagtypes() {
+		return "tagtype: title\n";
+	}
 /**
 * The command registry.
 *

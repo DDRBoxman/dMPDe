@@ -1,24 +1,35 @@
 package com.recursivepenguin.android.dMPDe;
 
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.Socket;
+import java.net.SocketException;
+import java.util.Enumeration;
 
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.os.IBinder;
 import android.util.Log;
 
 public class MPDService extends Service{
 
 	private NotificationManager mNM;
+	private AudioManager mAudioManager;
 	private ClientListener mClientListener;
 	private ClientEventListener mClientEventListener;
+	private Command mCommand;
 	
 	@Override
 	public void onCreate() {
 		mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+		mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+		
+		mCommand = new Command(mAudioManager);
 		
         // Display ongoing notification about mpd daemon service
         showNotification();
@@ -26,10 +37,29 @@ public class MPDService extends Service{
         mClientEventListener = new ClientEventListener() {
 
 			@Override
-			boolean doCommand(String command) {
+			String doCommand(String command) {
+				String result = "";
 				
-				Log.d("EventListener",command);
-				return false;
+				if (command != null) {
+					Log.d("EventListener",command);
+					if (command.contains("status")) {
+						result += mCommand.status();
+					}
+					else if (command.contains("commands")) {
+						result += mCommand.commands();
+					}
+					else if (command.contains("outputs")) {
+						result += mCommand.outputs();
+					} else if (command.contains("tagtypes")) {
+						result += mCommand.tagtypes();
+					}
+					result += "OK\n";
+				}
+				else {
+					result = "ACK\n";
+				}
+				
+				return result;
 			}
         	
         };
@@ -57,6 +87,7 @@ public class MPDService extends Service{
     void onClientConnect(Socket socket) {
     	Client newClient = new Client(socket);
     	newClient.setEventListener(mClientEventListener);
+    	newClient.sendCommand("OK MPD 0.12.2\n");
     	newClient.start();
     }
     
@@ -66,11 +97,28 @@ public class MPDService extends Service{
 		return null;
 	}
 	
+	public String getLocalIpAddress() {
+	    try {
+	        for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
+	            NetworkInterface intf = en.nextElement();
+	            for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
+	                InetAddress inetAddress = enumIpAddr.nextElement();
+	                if (!inetAddress.isLoopbackAddress()) {
+	                    return inetAddress.getHostAddress().toString();
+	                }
+	            }
+	        }
+	    } catch (SocketException ex) {
+	        Log.e("", ex.toString());
+	    }
+	    return null;
+	}
+	
 	/**
      * Show a notification while this service is running.
      */
     private void showNotification() {
-        CharSequence text = getText(R.string.local_service_started);
+        CharSequence text = getLocalIpAddress();
 
         // Set the icon, scrolling text and timestamp
         Notification notification = new Notification(R.drawable.icon, text,

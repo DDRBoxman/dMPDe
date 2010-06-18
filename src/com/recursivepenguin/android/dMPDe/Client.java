@@ -32,8 +32,15 @@ public class Client extends Thread{
 		boolean looping = true;
 		
 		while(looping == true) {
-			mListener.doCommand(getCommand());
+			String command = getCommand();
+			String result = mListener.doCommand(command);
+			sendCommand(result);
 		}
+	}
+	
+	public void sendCommand(String command) {
+		mSocketOut.write(command);
+		mSocketOut.flush();
 	}
 	
 	private String getCommand() {
