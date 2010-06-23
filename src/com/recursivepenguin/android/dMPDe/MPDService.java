@@ -10,8 +10,10 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.media.AudioManager;
 import android.os.IBinder;
 import android.util.Log;
@@ -23,6 +25,7 @@ public class MPDService extends Service{
 	private ClientListener mClientListener;
 	private ClientEventListener mClientEventListener;
 	private Command mCommand;
+	private com.android.music.IMediaPlaybackService mIMediaPlaybackService;
 	
 	@Override
 	public void onCreate() {
@@ -30,6 +33,20 @@ public class MPDService extends Service{
 		mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 		
 		mCommand = new Command(mAudioManager);
+		
+		/*
+		 * Bind to music player service
+		 *
+		 */
+		bindService(new Intent().setClassName("com.android.music", "com.android.music.MediaPlaybackService"), new ServiceConnection() {
+			public void onServiceConnected(ComponentName comp, IBinder binder) {
+				mCommand.mIMediaPlaybackService = com.android.music.IMediaPlaybackService.Stub.asInterface(binder);
+			}
+
+			public void onServiceDisconnected(ComponentName comp) {
+				mCommand.mIMediaPlaybackService = null;
+			}
+		}, 0);
 		
         // Display ongoing notification about mpd daemon service
         showNotification();
@@ -46,7 +63,8 @@ public class MPDService extends Service{
 						result += mCommand.status();
 					}
 					else if (command.contains("commands")) {
-						result += mCommand.commands();
+						if (!command.contains("notcommands"))
+							result += mCommand.commands();
 					}
 					else if (command.contains("outputs")) {
 						result += mCommand.outputs();

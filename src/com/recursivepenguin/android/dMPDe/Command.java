@@ -1,10 +1,12 @@
 package com.recursivepenguin.android.dMPDe;
 
-import android.content.Context;
 import android.media.AudioManager;
+import android.os.RemoteException;
 
 public class Command {
 
+	public com.android.music.IMediaPlaybackService mIMediaPlaybackService;
+	
 	private AudioManager mAudioManager;
 	
 	public Command(AudioManager amanager) {
@@ -15,10 +17,68 @@ public class Command {
 		
 		String statusString = "";
 		
+		//volume: (0-100)
 		int maxVol = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
 		int minVol = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
 		
 		statusString += "volume: " + (minVol/maxVol) * 100 + "\n";
+		
+		//repeat: (0 or 1)
+		try {
+			statusString += "repeat: " + mIMediaPlaybackService.getRepeatMode() + "\n";
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		//random: (0 or 1)
+		try {
+			statusString += "random: " + mIMediaPlaybackService.getShuffleMode() + "\n";
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		//playlist: (31-bit unsigned integer, the playlist version number)
+		statusString += "playlist: 1\n";
+			
+		//playlistlength: (integer, the length of the playlist)
+		try {
+			statusString +=	"playlistlength: " + mIMediaPlaybackService.getQueue().length + "\n";
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		//xfade: <int seconds> (crossfade in seconds)
+		statusString += "xfade: 0\n";
+		
+		//state: ("play", "stop", or "pause")
+		statusString += "state: play\n";
+		
+		//song: (current song stopped on or playing, playlist song number)
+		try {
+			statusString += "song: " + mIMediaPlaybackService.getQueuePosition() + "\n";
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		//songid: (current song stopped on or playing, playlist songid)
+		try {
+			statusString += "songid: " + mIMediaPlaybackService.getAudioId() + "\n";
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		//time: <int elapsed>:<time total> (of current playing/paused song)
+		try {
+			statusString += "time: " + mIMediaPlaybackService.position() + ":" + mIMediaPlaybackService.duration() + "\n";
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		return statusString;
 	}
@@ -36,6 +96,42 @@ public class Command {
 	//return tag types
 	public String tagtypes() {
 		return "tagtype: title\n";
+	}
+	
+	public void next() {
+		try {
+			mIMediaPlaybackService.next();
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void pause() {
+		try {
+			mIMediaPlaybackService.pause();
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void play() {
+		try {
+			mIMediaPlaybackService.play();
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void previous() {
+		try {
+			mIMediaPlaybackService.prev();
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 /**
 * The command registry.
